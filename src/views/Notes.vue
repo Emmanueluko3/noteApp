@@ -1,4 +1,7 @@
 <script>
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
 export default {
   name: "NotesPanel",
   data() {
@@ -11,6 +14,9 @@ export default {
       noteDescription: "",
       showNotes: false,
       isloading: false,
+      toast: useToast(),
+      showTooltip: null,
+      showTooltip1: null,
     };
   },
   computed: {
@@ -26,6 +32,12 @@ export default {
       } else {
         this.wordCount = 0;
       }
+    },
+    showTooltip(value) {
+      value == 0 ?? null;
+    },
+    showTooltip1(value) {
+      value == 0 ?? null;
     },
   },
 
@@ -44,6 +56,13 @@ export default {
         );
         this.noteTitle = "";
         this.noteDescription = "";
+      } else {
+        if (this.noteTitle.trim() == "") {
+          this.toast.error("Title cannot be empty");
+        }
+        if (this.noteDescription.trim() == "") {
+          this.toast.error("Description cannot be empty");
+        }
       }
     },
 
@@ -103,7 +122,7 @@ export default {
       <textarea
         class="border h-20 px-3 mb-2 text-[#252525] focus:outline-none"
         v-model="noteDescription"
-        placeholder="Title"
+        placeholder="Description"
       ></textarea>
       <button
         @click="addNote"
@@ -129,17 +148,37 @@ export default {
         v-for="(note, index) in notesFromLocalStorage"
         :key="index"
       >
-        <div class="flex justify-between items-center">
-          <div @click="showModal = true" class="cursor-pointer">
-            <i class="fa-solid fa-trash-can text-[#fff]"></i>
+        <div class="flex justify-between mb-2 items-center">
+          <div
+            @mouseenter="showTooltip = index"
+            @mouseleave="showTooltip = null"
+            @click="showModal = true"
+            class="cursor-pointer"
+          >
+            <i class="fa-solid fa-trash-can text-[#fff] mr-1"></i>
+            <span
+              class="text-[12px] bg-slate-600 rounded-full p-1"
+              v-if="showTooltip == index"
+              >Delete note</span
+            >
           </div>
-          <div @click="onEdit(index)" class="cursor-pointer">
-            <i class="fa-solid fa-pen-to-square text-[#fff]"></i>
+          <div
+            @mouseenter="showTooltip1 = index"
+            @mouseleave="showTooltip1 = null"
+            @click="onEdit(index)"
+            class="cursor-pointer"
+          >
+            <span
+              class="text-[12px] bg-slate-600 rounded-full p-1"
+              v-show="showTooltip1 == index"
+              >Edit note</span
+            >
+            <i class="fa-solid fa-pen-to-square text-[#fff] ml-1"></i>
           </div>
         </div>
 
-        <h2 class="text-[32px] break-words font-bold">{{ note.title }}</h2>
-        <p class="break-words text-[22px] font-normal">
+        <h2 class="text-[28px] break-words font-bold">{{ note.title }}</h2>
+        <p class="break-words text-[20px] font-normal">
           {{ note.description }}
         </p>
 
@@ -195,4 +234,29 @@ export default {
 .animate-zoom {
   animation: zoom 4s infinite ease-in-out;
 }
+
+/* .tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-text {
+  visibility: visible;
+  transition: opacity 0.3s;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  padding: 8px;
+  position: absolute;
+  z-index: 10;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip-text .show {
+  visibility: visible;
+  opacity: 1;
+} */
 </style>
